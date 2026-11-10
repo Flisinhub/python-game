@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Quest · La aventura de Byte</title>
+<style>
+:root{
+  --bg:#0b1020;--bg2:#121a33;--card:#182244;--card2:#1e2a52;--line:#2b3a6b;
+  --txt:#e8ecff;--muted:#9aa6d1;--acc:#7c5cff;--acc2:#22d3ee;--ok:#22c55e;--bad:#f43f5e;--gold:#fbbf24;
+  --cfs:14px;--mono:"JetBrains Mono","Fira Code",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1200px 600px at 80% -10%,#2a1f6b 0%,transparent 60%),radial-gradient(900px 500px at -10% 110%,#0e4a5c 0%,transparent 60%),var(--bg);color:var(--txt);}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+code{font-family:var(--mono);background:#0d1430;padding:1px 6px;border-radius:6px;color:#a5f3fc;font-size:.92em}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:rgba(18,26,51,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+.logo span{background:linear-gradient(90deg,var(--acc2),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .robot{color:initial;background:none;-webkit-background-clip:initial}
+.rank{display:flex;flex-direction:column;min-width:220px;flex:1;max-width:380px}
+.rank-top{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.rank-top b{color:var(--txt)}
+.bar{height:10px;background:#0d1430;border-radius:99px;overflow:hidden;margin-top:4px;border:1px solid var(--line)}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));width:0;transition:width .8s cubic-bezier(.2,.9,.3,1)}
+.stats{display:flex;gap:10px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:99px;font-weight:700;display:flex;gap:6px;align-items:center}
+.pill.btn{cursor:pointer}
+.pill.btn:hover{border-color:var(--acc)}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:99px}
+.ghost:hover{color:var(--txt);border-color:var(--bad)}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+aside{background:rgba(24,34,68,.7);border:1px solid var(--line);border-radius:16px;padding:14px;height:calc(100vh - 100px);overflow:auto;position:sticky;top:84px}
+.world{margin-bottom:16px}
+.world h3{margin:0 0 8px;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:flex;justify-content:space-between}
+.node{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);color:var(--txt);padding:9px 10px;margin-bottom:6px;border:1px solid var(--line);border-radius:12px;transition:.15s}
+.node:hover:not(.locked){transform:translateX(3px);border-color:var(--acc)}
+.node.active{border-color:var(--acc2);box-shadow:0 0 0 2px rgba(34,211,238,.25)}
+.node.locked{opacity:.45;cursor:not-allowed}
+.node .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#0d1430;font-weight:800;font-size:.85rem;flex:none}
+.node.done .num{background:linear-gradient(135deg,var(--ok),#15803d)}
+.node .t{flex:1;font-size:.88rem;line-height:1.2}
+.node .st{font-size:.75rem;color:var(--gold);letter-spacing:-1px}
+main{display:grid;grid-template-columns:minmax(320px,1fr) minmax(380px,1.15fr);gap:16px;align-items:start}
+.card{background:rgba(24,34,68,.85);border:1px solid var(--line);border-radius:16px;padding:18px}
+.lvl-head{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.badge-world{font-size:.75rem;background:#0d1430;border:1px solid var(--line);padding:3px 10px;border-radius:99px;color:var(--acc2)}
+h2{margin:6px 0 6px;font-size:1.45rem}
+.story{background:linear-gradient(135deg,rgba(124,92,255,.18),rgba(34,211,238,.10));border-left:4px solid var(--acc);padding:10px 14px;border-radius:10px;margin:10px 0;font-style:italic;color:#d6dcff}
+.section-t{font-weight:800;font-size:.8rem;letter-spacing:1px;text-transform:uppercase;color:var(--acc2);margin:16px 0 6px}
+.explain{line-height:1.6;color:#d8def7}
+.explain ul,.explain ol{padding-left:20px;margin:6px 0}
+pre.example{font-family:var(--mono);background:#0a1029;border:1px solid var(--line);padding:12px;border-radius:10px;overflow:auto;font-size:.88rem;color:#c7d2fe;margin:8px 0}
+.mission{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:12px;padding:12px 14px;line-height:1.55}
+.mission b{color:var(--gold)}
+.rewards{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--muted)}
+.rewards span{background:#0d1430;padding:4px 10px;border-radius:99px;border:1px solid var(--line)}
+.hintbox{margin-top:10px;display:none;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.35);border-radius:12px;padding:10px 14px;line-height:1.5}
+.editor-wrap{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0a1029;height:330px}
+.gutter{font-family:var(--mono);font-size:var(--cfs);line-height:1.5;padding:12px 8px;color:#4b5a8f;text-align:right;user-select:none;background:#080d22;min-width:40px;overflow:hidden;white-space:pre}
+textarea#code{flex:1;resize:none;border:0;outline:0;background:transparent;color:#e2e8ff;font-family:var(--mono);font-size:var(--cfs);line-height:1.5;padding:12px;tab-size:4;white-space:pre;overflow:auto}
+.toolbar{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.b{padding:10px 16px;font-weight:700;color:white;display:flex;align-items:center;gap:6px;transition:.15s}
+.b:disabled{opacity:.5;cursor:wait}
+.b:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.1)}
+.b-run{background:#334155}
+.b-check{background:linear-gradient(135deg,var(--acc),#5b3df5);box-shadow:0 6px 20px rgba(124,92,255,.35)}
+.b-hint{background:#0e7490}
+.b-reset{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.b-next{background:linear-gradient(135deg,var(--ok),#15803d)}
+.console{font-family:var(--mono);font-size:calc(var(--cfs) - .5px);background:#05081a;border:1px solid var(--line);border-radius:12px;padding:12px;min-height:110px;max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.console .muted{color:#6b7bb3}
+.result{margin-top:10px;border-radius:12px;padding:12px 14px;display:none;line-height:1.5}
+.result.ok{display:block;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.5)}
+.result.bad{display:block;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.5)}
+.result.err{display:block;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.5)}
+.result small{color:var(--muted);font-family:var(--mono)}
+.status{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.dot.ready{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.kbd{font-size:.75rem;color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(3,6,20,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.overlay.show{display:flex}
+.modal{background:linear-gradient(160deg,#1e2a58,#141c3c);border:1px solid var(--line);border-radius:20px;padding:26px;max-width:520px;width:100%;text-align:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-size:1.7rem}
+.big-stars{font-size:2.6rem;letter-spacing:6px;margin:6px 0}
+.big-stars .s{display:inline-block;animation:starIn .5s both}
+.big-stars .s.off{filter:grayscale(1);opacity:.25}
+@keyframes starIn{from{transform:scale(0) rotate(-90deg)}to{transform:scale(1) rotate(0)}}
+.gain{display:flex;justify-content:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+.gain div{background:#0d1430;border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-weight:800}
+.reasons{color:var(--muted);font-size:.9rem;line-height:1.6}
+.modal .row{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px;max-height:60vh;overflow:auto;text-align:left}
+.ach{background:#0d1430;border:1px solid var(--line);border-radius:12px;padding:10px}
+.ach.lock{opacity:.4;filter:grayscale(1)}
+.ach .i{font-size:1.6rem}
+.ach b{display:block;font-size:.85rem;margin:2px 0}
+.ach small{color:var(--muted);font-size:.75rem}
+.toasts{position:fixed;right:16px;bottom:16px;pointer-events:none;display:flex;flex-direction:column;gap:8px;z-index:60}
+.toast{background:linear-gradient(135deg,#2b1f6b,#173a55);border:1px solid var(--acc);border-radius:14px;padding:10px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:slide .4s ease-out}
+.toast .i{font-size:1.8rem}
+@keyframes slide{from{transform:translateX(120%)}to{transform:none}}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+.robot{font-size:2rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+
+/* ===== Escritorio: ocupa toda la ventana, cada columna con su propio scroll ===== */
+@media (min-width:1101px) and (min-height:560px){
+  html,body{height:100%;overflow:hidden}
+  body{display:flex;flex-direction:column}
+  header{position:relative;flex:none}
+  .layout{flex:1;min-height:0;max-width:none;width:100%;margin:0;grid-template-columns:260px minmax(0,1fr) minmax(0,1.3fr);gap:14px;padding:14px}
+  main{display:contents}
+  aside,#lessonCard,#codeCard{height:100%;min-height:0;position:static;top:auto}
+  aside,#lessonCard{overflow:auto}
+  #codeCard{display:flex;flex-direction:column;overflow:hidden}
+  #codeCard>*{flex:none}
+  #codeCard .editor-wrap{flex:3 1 0;min-height:160px;height:auto}
+  #codeCard .console{flex:2 1 0;min-height:80px;max-height:none}
+  #codeCard .result{max-height:30%;overflow:auto}
+}
+@media (min-width:1700px) and (min-height:560px){html{font-size:17px}:root{--cfs:15.5px}.layout{grid-template-columns:290px minmax(0,1fr) minmax(0,1.3fr)!important}}
+@media (min-width:2300px) and (min-height:560px){html{font-size:19px}:root{--cfs:17.5px}.layout{grid-template-columns:330px minmax(0,1fr) minmax(0,1.3fr)!important;gap:18px;padding:18px}}
+@media (max-width:1100px){main{grid-template-columns:1fr}}
+@media (max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;height:auto;max-height:240px}header{position:static}.stats{margin-left:0}.rank{max-width:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="robot">🤖</span><span>Python Quest</span></div>
+  <div class="rank">
+    <div class="rank-top"><span>Rango: <b id="rankName">—</b></span><span id="xpTxt">0 XP</span></div>
+    <div class="bar"><div id="xpBar"></div></div>
+  </div>
+  <div class="stats">
+    <div class="pill" title="Monedas">🪙 <span id="coins">0</span></div>
+    <div class="pill" title="Estrellas">⭐ <span id="stars">0</span></div>
+    <div class="pill btn" id="achBtn" title="Logros">🏆 <span id="achCount">0</span></div>
+    <button class="ghost" id="resetBtn" title="Borrar todo el progreso">↺ Reiniciar</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="map"></aside>
+  <main>
+    <section class="card" id="lessonCard">
+      <div class="lvl-head"><span class="badge-world" id="lvlWorld"></span><span class="kbd" id="lvlNum"></span></div>
+      <h2 id="lvlTitle"></h2>
+      <div class="story" id="lvlStory"></div>
+      <div class="section-t">📘 Aprende</div>
+      <div class="explain" id="lvlExplain"></div>
+      <div class="section-t">Ejemplo</div>
+      <pre class="example" id="lvlExample"></pre>
+      <div class="section-t">🎯 Misión</div>
+      <div class="mission" id="lvlMission"></div>
+      <div class="rewards" id="lvlRewards"></div>
+      <div class="hintbox" id="hintBox"></div>
+    </section>
+    <section class="card" id="codeCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <b>🧑‍💻 Tu código</b>
+        <div class="status"><span class="dot" id="pyDot"></span><span id="pyStatus">Cargando Python…</span></div>
+      </div>
+      <div class="editor-wrap">
+        <div class="gutter" id="gutter">1</div>
+        <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      </div>
+      <div class="toolbar">
+        <button class="b b-run" id="runBtn" disabled>▶ Ejecutar</button>
+        <button class="b b-check" id="checkBtn" disabled>✔ Comprobar misión</button>
+        <button class="b b-hint" id="hintBtn">💡 Pista</button>
+        <button class="b b-reset" id="resetCodeBtn">⟲ Código inicial</button>
+        <button class="b b-next" id="nextBtn" style="display:none">Siguiente nivel ➜</button>
+      </div>
+      <div class="kbd" style="margin-bottom:8px">Atajos: <code>Ctrl+Enter</code> ejecutar · <code>Ctrl+Shift+Enter</code> comprobar · <code>Tab</code> sangría</div>
+      <div class="section-t" style="margin-top:4px">Consola</div>
+      <div class="console" id="console"><span class="muted">La salida de tu programa aparecerá aquí…</span></div>
+      <div class="result" id="result"></div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="winOverlay"><div class="modal" id="winModal"></div></div>
+<div class="overlay" id="achOverlay"><div class="modal" style="max-width:760px">
+  <h2>🏆 Logros</h2><div class="reasons" id="achSummary"></div>
+  <div class="ach-grid" id="achGrid"></div>
+  <div class="row"><button class="b b-check" onclick="closeOverlay('achOverlay')">Cerrar</button></div>
+</div></div>
+<div class="toasts" id="toasts"></div>
+<canvas id="confetti"></canvas>
+<!-- ============ Python harness (se ejecuta dentro de Pyodide) ============ -->
+<script type="text/x-python" id="harness">
+import sys, io, json, re, ast, traceback
+
+class _Fallo(Exception):
+    pass
+
+def _no_input(*a, **k):
+    raise RuntimeError("__INPUT__")
+
+def _exec_capture(code, ns=None):
+    if ns is None:
+        ns = {}
+    ns["__name__"] = "__main__"
+    ns["input"] = _no_input
+    buf = io.StringIO()
+    old = sys.stdout
+    sys.stdout = buf
+    exc = None
+    try:
+        exec(compile(code, "<tu_codigo>", "exec"), ns)
+    except BaseException as e:
+        exc = e
+    finally:
+        sys.stdout = old
+    return buf.getvalue(), ns, exc
+
+def _err_info(e):
+    line = None
+    if isinstance(e, SyntaxError) and e.filename == "<tu_codigo>":
+        line = e.lineno
+    else:
+        for fr in traceback.extract_tb(e.__traceback__):
+            if fr.filename == "<tu_codigo>":
+                line = fr.lineno
+    msg = e.msg if isinstance(e, SyntaxError) else str(e)
+    return {"type": type(e).__name__, "msg": msg, "line": line}
+
+def _make_helpers(ns, code, out):
+    def check(cond, msg):
+        if not cond:
+            raise _Fallo(msg)
+    def lineas(texto=None):
+        t = out if texto is None else texto
+        return [l.strip() for l in t.strip().splitlines() if l.strip() != ""]
+    def salida_esperada(esperado, texto=None):
+        got = lineas(texto)
+        exp = [l.strip() for l in esperado.strip().splitlines()]
+        if got != exp:
+            raise _Fallo("La salida no coincide.\nEsperaba:\n" + "\n".join(exp) + "\n\nObtuve:\n" + ("\n".join(got) if got else "(nada)"))
+    def ejecutar_con(patron, reemplazo):
+        nuevo, n = re.subn(patron, reemplazo, code, count=1)
+        if n == 0:
+            raise _Fallo("No encuentro la línea original de la variable. No la borres: el examen la cambia para probar otros casos.")
+        o, ns2, ex = _exec_capture(nuevo)
+        if ex is not None:
+            raise ex
+        return o
+    def funcion(nombre):
+        f = ns.get(nombre)
+        if f is None:
+            raise _Fallo("No encuentro la función '" + nombre + "'. Defínela con: def " + nombre + "(...):")
+        if not callable(f):
+            raise _Fallo("'" + nombre + "' existe pero no es una función.")
+        return f
+    def variable(nombre):
+        if nombre not in ns:
+            raise _Fallo("No encuentro la variable '" + nombre + "'. ¿La has creado con ese nombre exacto?")
+        return ns[nombre]
+    def llamadas():
+        try:
+            tree = ast.parse(code)
+        except Exception:
+            return set()
+        s = set()
+        for n in ast.walk(tree):
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
+                s.add(n.func.id)
+        return s
+    def usa(*palabras):
+        tree = ast.parse(code)
+        tipos = {"for": ast.For, "while": ast.While, "if": ast.If, "def": ast.FunctionDef}
+        for p in palabras:
+            if not any(isinstance(n, tipos[p]) for n in ast.walk(tree)):
+                return False
+        return True
+    def comparar(nombre, args, esperado):
+        f = funcion(nombre)
+        r = f(*args)
+        if r is None and esperado is not None:
+            raise _Fallo(nombre + "(" + ", ".join(repr(a) for a in args) + ") devolvió None. ¿Olvidaste usar return? (print muestra, pero return devuelve)")
+        if r != esperado:
+            raise _Fallo(nombre + "(" + ", ".join(repr(a) for a in args) + ") devolvió " + repr(r) + ", pero se esperaba " + repr(esperado))
+    return dict(check=check, lineas=lineas, salida_esperada=salida_esperada, ejecutar_con=ejecutar_con,
+                funcion=funcion, variable=variable, llamadas=llamadas, usa=usa, comparar=comparar,
+                __out__=out, __code__=code)
+
+def harness(code, tests):
+    res = {"ok": False, "out": "", "error": None, "fail": None, "tested": bool(tests)}
+    out, ns, exc = _exec_capture(code)
+    res["out"] = out
+    if exc is not None:
+        if isinstance(exc, RuntimeError) and str(exc) == "__INPUT__":
+            res["error"] = {"type": "InputError", "msg": "input()", "line": _err_info(exc)["line"]}
+        else:
+            res["error"] = _err_info(exc)
+        return json.dumps(res)
+    if not tests:
+        res["ok"] = True
+        return json.dumps(res)
+    tns = dict(_make_helpers(ns, code, out))
+    tns["ns"] = ns
+    old = sys.stdout
+    sys.stdout = io.StringIO()
+    try:
+        exec(tests, tns)
+        res["ok"] = True
+    except _Fallo as e:
+        res["fail"] = str(e)
+    except AssertionError as e:
+        res["fail"] = str(e) or "Una comprobación ha fallado."
+    except BaseException as e:
+        info = _err_info(e)
+        info["during"] = "test"
+        res["error"] = info
+    finally:
+        sys.stdout = old
+    return json.dumps(res)
+</script>
+
+<!-- ============ Web Worker con Pyodide ============ -->
+<script type="text/plain" id="workerSrc">
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+let py = null, harness = null;
+self.onmessage = async (e) => {
+  const d = e.data;
+  if (d.type === "init") {
+    try {
+      py = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/" });
+      py.runPython(d.harness);
+      harness = py.globals.get("harness");
+      self.postMessage({ type: "ready" });
+    } catch (err) { self.postMessage({ type: "loaderror", msg: String(err) }); }
+  } else if (d.type === "run") {
+    try {
+      const r = harness(d.code, d.tests || "");
+      self.postMessage({ type: "result", id: d.id, res: JSON.parse(r) });
+    } catch (err) {
+      self.postMessage({ type: "result", id: d.id, res: { ok: false, out: "", error: { type: "InternalError", msg: String(err), line: null } } });
+    }
+  }
+};
+</script>
+<script>
+/* ===================== NIVELES ===================== */
+const WORLDS = [
+  { id: 1, name: "Base de aterrizaje", icon: "🛸" },
+  { id: 2, name: "Cueva de las decisiones", icon: "🔀" },
+  { id: 3, name: "Bosque de los bucles", icon: "🔁" },
+  { id: 4, name: "Laboratorio de funciones", icon: "🧪" },
+  { id: 5, name: "Núcleo lógico", icon: "🧠" },
+];
+const L = [];
+function lvl(o){ L.push(o); }
+
+lvl({ world:1, title:"Despierta, Byte", xp:50,
+  story:"Tu nave se ha estrellado en el planeta Pythonia. Byte, tu robot explorador, está apagado. ¡Para despertarlo tiene que decir su primera frase!",
+  explain:`<p><code>print()</code> muestra un mensaje en la pantalla (la consola). El texto va entre comillas, simples <code>'...'</code> o dobles <code>"..."</code>.</p><ul><li>Cada <code>print</code> escribe una línea nueva.</li><li>Sin comillas, Python pensaría que es el nombre de una variable.</li></ul>`,
+  example:`print("Sistemas en línea")
+print('Hola, piloto')`,
+  mission:`Haz que Byte muestre exactamente: <b>¡Hola, Pythonia!</b>`,
+  starter:`# Escribe tu código debajo de esta línea\n`,
+  hints:["Usa print(...) con el texto entre comillas.", 'Solución casi completa: print("¡Hola, Pythonia!")'],
+  tests:String.raw`
+salida_esperada("¡Hola, Pythonia!")
+`});
+
+lvl({ world:1, title:"La memoria de Byte", xp:60,
+  story:"Byte ya habla, pero no recuerda nada. Vamos a darle memoria con variables.",
+  explain:`<p>Una <b>variable</b> es una caja con nombre donde guardas un valor: <code>nombre = valor</code>.</p><ul><li>Texto (<i>str</i>): <code>"Byte"</code></li><li>Números enteros (<i>int</i>): <code>100</code></li><li>Puedes combinarlas en un texto con una <b>f-string</b>: <code>f"Hola {nombre}"</code></li></ul>`,
+  example:`planeta = "Pythonia"
+lunas = 3
+print(f"{planeta} tiene {lunas} lunas")`,
+  mission:`Crea la variable <code>nombre</code> con el texto <code>"Byte"</code> y la variable <code>energia</code> con el número <code>100</code>. Después muestra, <b>usando las variables</b>: <b>Byte tiene 100 de energía</b>`,
+  starter:`# Crea tus variables aquí\n\n\n# Muestra el mensaje usando las variables\n`,
+  hints:["Las variables se crean así: energia = 100 (sin comillas para números).", 'Usa una f-string: print(f"{nombre} tiene {energia} de energía")'],
+  tests:String.raw`
+check(variable("nombre") == "Byte", "La variable nombre debe valer \"Byte\" (con comillas, es texto).")
+check(variable("energia") == 100, "La variable energia debe valer 100 (un número, sin comillas).")
+check(type(ns["energia"]) is int, "energia debe ser un número entero, no un texto. Quita las comillas.")
+salida_esperada("Byte tiene 100 de energía")
+check("Byte tiene" not in __code__, "¡Casi! Pero debes usar las variables, no escribir el texto a mano. Prueba con una f-string.")
+`});
+
+lvl({ world:1, title:"Descifrando señales", xp:70,
+  story:"Byte capta una señal de radio: 'pythonia'. Hay que analizarla con herramientas de texto.",
+  explain:`<p>Los textos (<i>strings</i>) tienen superpoderes:</p><ul><li><code>texto.upper()</code> → todo en MAYÚSCULAS</li><li><code>texto.lower()</code> → todo en minúsculas</li><li><code>len(texto)</code> → cuántos caracteres tiene</li><li><code>texto[0]</code> → el primer carácter (¡se empieza a contar en 0!)</li><li><code>texto[-1]</code> → el último carácter</li></ul>`,
+  example:`s = "robot"
+print(s.upper())   # ROBOT
+print(len(s))      # 5
+print(s[0])        # r`,
+  mission:`Con la variable <code>senal = "pythonia"</code>, muestra en <b>3 líneas</b>: la señal en mayúsculas, su longitud y su <b>última</b> letra.<br>Salida esperada:<br><code>PYTHONIA</code><br><code>8</code><br><code>a</code>`,
+  starter:`senal = "pythonia"\n\n# 1) en mayúsculas\n\n# 2) longitud\n\n# 3) última letra\n`,
+  hints:["Necesitas tres print: uno con .upper(), otro con len(...) y otro con [-1].", "print(senal.upper())\nprint(len(senal))\nprint(senal[-1])"],
+  tests:String.raw`
+salida_esperada("PYTHONIA\n8\na")
+check(".upper()" in __code__, "Usa el método .upper() en lugar de escribir PYTHONIA a mano.")
+check("len(" in __code__, "Usa len() para calcular la longitud.")
+`});
+
+lvl({ world:1, title:"Taller de tornillos", xp:80,
+  story:"Para reparar la nave, Byte recoge tornillos. ¡Hora de hacer cuentas!",
+  explain:`<p>Python es una calculadora potente:</p><ul><li><code>+ - * /</code> suma, resta, multiplicación, división (da decimales)</li><li><code>//</code> división entera (sin decimales): <code>7 // 2</code> → 3</li><li><code>%</code> resto (módulo): <code>7 % 2</code> → 1</li><li><code>**</code> potencia: <code>2 ** 3</code> → 8</li></ul><p>Se respeta el orden de operaciones: primero <code>*</code> y <code>/</code>, luego <code>+</code> y <code>-</code>.</p>`,
+  example:`cajas = 3
+por_caja = 10
+total = cajas * por_caja   # 30
+print(total // 4, total % 4)  # 7 2`,
+  mission:`Byte encuentra <b>7 cajas</b> con <b>12 tornillos</b> cada una, pero se le caen <b>5</b>.<br>1) Guarda en <code>tornillos</code> el total que le queda.<br>2) Reparte los tornillos entre sus <b>4 brazos</b>: guarda en <code>por_brazo</code> cuántos recibe cada brazo (división entera) y en <code>sobran</code> los que sobran.<br>3) Muestra las tres variables, una por línea.`,
+  starter:`tornillos = \npor_brazo = \nsobran = \n\nprint(tornillos)\nprint(por_brazo)\nprint(sobran)\n`,
+  hints:["tornillos = 7 * 12 - 5", "Usa // para la división entera y % para el resto: por_brazo = tornillos // 4"],
+  tests:String.raw`
+check(variable("tornillos") == 79, "tornillos debería ser 7 × 12 − 5. Revisa la cuenta.")
+check(variable("por_brazo") == 19, "por_brazo debería ser la división entera de tornillos entre 4 (usa //).")
+check(variable("sobran") == 3, "sobran debería ser el resto de dividir tornillos entre 4 (usa %).")
+salida_esperada("79\n19\n3")
+`});
+
+lvl({ world:2, title:"¡Sobrecalentamiento!", xp:90,
+  story:"Byte entra en la Cueva de las decisiones. Hace calor y sus circuitos tienen que decidir qué hacer.",
+  explain:`<p>Con <code>if</code> el programa toma decisiones. Si la condición es verdadera se ejecuta el bloque con <b>sangría</b> (4 espacios). Si no, se ejecuta el bloque de <code>else</code>.</p><ul><li>Comparadores: <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> (igual) <code>!=</code> (distinto)</li><li>¡No olvides los dos puntos <code>:</code> al final de <code>if</code> y <code>else</code>!</li></ul>`,
+  example:`velocidad = 120
+if velocidad > 100:
+    print("¡Frena!")
+else:
+    print("Velocidad correcta")`,
+  mission:`Si <code>temperatura</code> es <b>mayor que 30</b>, muestra <b>¡Activar ventiladores!</b>; si no, muestra <b>Temperatura normal</b>.<br><small>El examen probará tu código con varias temperaturas, ¡no hagas trampa! 😉</small>`,
+  starter:`temperatura = 35\n\n# Escribe tu if / else aquí\n`,
+  hints:["Empieza con: if temperatura > 30:", 'if temperatura > 30:\n    print("¡Activar ventiladores!")\nelse:\n    print("Temperatura normal")'],
+  tests:String.raw`
+for t, esperado in [(35, "¡Activar ventiladores!"), (10, "Temperatura normal"), (30, "Temperatura normal"), (31, "¡Activar ventiladores!")]:
+    o = ejecutar_con(r"temperatura\s*=\s*-?\d+", "temperatura = " + str(t))
+    check(lineas(o) == [esperado], "Con temperatura = " + str(t) + " esperaba «" + esperado + "» pero obtuve: " + (" / ".join(lineas(o)) or "(nada)"))
+`});
+
+lvl({ world:2, title:"Indicador de batería", xp:100,
+  story:"El panel de Byte necesita mostrar el estado de la batería con tres niveles.",
+  explain:`<p>Cuando hay más de dos caminos, usa <code>elif</code> (abreviatura de «else if»). Python comprueba las condiciones <b>en orden</b> y ejecuta solo la primera que sea verdadera.</p>`,
+  example:`nota = 7
+if nota >= 9:
+    print("Sobresaliente")
+elif nota >= 5:
+    print("Aprobado")
+else:
+    print("Suspenso")`,
+  mission:`Según <code>bateria</code>:<br>• <b>70 o más</b> → <b>Batería alta</b><br>• <b>30 o más</b> (pero menos de 70) → <b>Batería media</b><br>• menos de 30 → <b>Batería baja</b>`,
+  starter:`bateria = 50\n\n`,
+  hints:["Usa if bateria >= 70: ... elif bateria >= 30: ... else: ...", 'if bateria >= 70:\n    print("Batería alta")\nelif bateria >= 30:\n    print("Batería media")\nelse:\n    print("Batería baja")'],
+  tests:String.raw`
+casos = [(85,"Batería alta"),(70,"Batería alta"),(50,"Batería media"),(30,"Batería media"),(29,"Batería baja"),(0,"Batería baja")]
+for b, esperado in casos:
+    o = ejecutar_con(r"bateria\s*=\s*-?\d+", "bateria = " + str(b))
+    check(lineas(o) == [esperado], "Con bateria = " + str(b) + " esperaba «" + esperado + "» pero obtuve: " + (" / ".join(lineas(o)) or "(nada)"))
+`});
+
+lvl({ world:3, title:"Cuenta atrás", xp:110,
+  story:"Byte quiere despegar para cruzar el Bosque de los bucles. ¡Necesita una cuenta atrás!",
+  explain:`<p>Un bucle <code>for</code> repite un bloque para cada elemento de una secuencia. <code>range()</code> genera números:</p><ul><li><code>range(5)</code> → 0, 1, 2, 3, 4</li><li><code>range(1, 6)</code> → 1, 2, 3, 4, 5 (el final no se incluye)</li><li><code>range(10, 0, -2)</code> → 10, 8, 6, 4, 2 (el tercer número es el paso)</li></ul>`,
+  example:`for i in range(1, 4):
+    print("Vuelta", i)
+print("¡Fin!")`,
+  mission:`Usando un bucle <code>for</code>, muestra los números del <b>5 al 1</b> (uno por línea) y después <b>¡Despegue!</b>`,
+  starter:`# Usa for y range()\n`,
+  hints:["range(5, 0, -1) va del 5 al 1 hacia atrás.", 'for i in range(5, 0, -1):\n    print(i)\nprint("¡Despegue!")'],
+  tests:String.raw`
+check(usa("for"), "Esta misión hay que resolverla con un bucle for.")
+salida_esperada("5\n4\n3\n2\n1\n¡Despegue!")
+`});
+
+lvl({ world:3, title:"Pasos en el barro", xp:120,
+  story:"El bosque está lleno de barro. Cada paso le cuesta a Byte 15 de energía. ¿Cuántos pasos puede dar?",
+  explain:`<p>El bucle <code>while</code> repite <b>mientras</b> la condición sea verdadera. Es perfecto cuando no sabes cuántas vueltas darás.</p><ul><li><code>x += 1</code> es lo mismo que <code>x = x + 1</code></li><li><code>x -= 15</code> es lo mismo que <code>x = x - 15</code></li><li>⚠️ Asegúrate de que la condición acabe siendo falsa, o tendrás un bucle infinito.</li></ul>`,
+  example:`agua = 10
+while agua > 0:
+    agua -= 3
+    print("Queda", agua)`,
+  mission:`Byte empieza con <code>energia = 100</code>. Cada paso gasta <b>15</b>, y solo puede dar un paso si tiene <b>15 o más</b>. Con un bucle <code>while</code>, cuenta los pasos en <code>pasos</code>. Al final muestra <code>pasos</code> y luego la <code>energia</code> que queda.`,
+  starter:`energia = 100\npasos = 0\n\n# Tu bucle while aquí\n\n\nprint(pasos)\nprint(energia)\n`,
+  hints:["La condición es: while energia >= 15:", "Dentro del bucle: energia -= 15 y pasos += 1"],
+  tests:String.raw`
+check(usa("while"), "Usa un bucle while para esta misión.")
+salida_esperada("6\n10")
+o = ejecutar_con(r"energia\s*=\s*\d+", "energia = 50")
+check(lineas(o) == ["3", "5"], "Con energia = 50 esperaba 3 pasos y 5 de energía, pero obtuve: " + " / ".join(lineas(o)))
+`});
+
+lvl({ world:3, title:"Colección de cristales", xp:130,
+  story:"¡Byte ha encontrado cristales de energía! Los guarda en una lista.",
+  explain:`<p>Una <b>lista</b> guarda varios valores en orden: <code>[1, 2, 3]</code>.</p><ul><li><code>lista[0]</code> primer elemento, <code>lista[-1]</code> último</li><li><code>lista.append(x)</code> añade x al final</li><li><code>len(lista)</code> cuántos elementos hay</li><li><code>sum(lista)</code> suma todos los números</li><li>Puedes recorrerla con <code>for x in lista:</code></li></ul>`,
+  example:`frutas = ["pera", "kiwi"]
+frutas.append("uva")
+print(frutas[0], len(frutas))   # pera 3`,
+  mission:`Con <code>cristales = [4, 8, 15, 16, 23, 42]</code>, muestra (una por línea):<br>1) el <b>primer</b> cristal<br>2) el <b>último</b> cristal<br>3) la <b>suma</b> de todos<br>Después añade un cristal de valor <b>99</b> al final y muestra 4) la <b>cantidad</b> de cristales.`,
+  starter:`cristales = [4, 8, 15, 16, 23, 42]\n\n`,
+  hints:["print(cristales[0]) muestra el primero. El último es cristales[-1].", "cristales.append(99) y luego print(len(cristales))"],
+  tests:String.raw`
+c = variable("cristales")
+check(isinstance(c, list) and len(c) == 7 and c[-1] == 99, "La lista cristales debe acabar con 99 (usa .append(99)).")
+salida_esperada("4\n42\n108\n7")
+`});
+
+lvl({ world:4, title:"El saludo automático", xp:140,
+  story:"En el laboratorio, Byte aprende a crear sus propias órdenes: las funciones.",
+  explain:`<p>Una <b>función</b> es un bloque de código con nombre que puedes reutilizar. Se define con <code>def</code>, puede recibir <b>parámetros</b> y <b>devolver</b> un resultado con <code>return</code>.</p><ul><li><code>print</code> solo muestra; <code>return</code> entrega el valor a quien llamó a la función.</li><li>Recuerda los <code>:</code> y la sangría.</li></ul>`,
+  example:`def doble(n):
+    return n * 2
+
+resultado = doble(21)
+print(resultado)   # 42`,
+  mission:`Crea la función <code>saludar(nombre)</code> que <b>devuelva</b> (con <code>return</code>) el texto <b>"Hola, NOMBRE!"</b>.<br>Ejemplo: <code>saludar("Byte")</code> → <code>"Hola, Byte!"</code>`,
+  starter:`def saludar(nombre):\n    # tu código aquí\n    pass\n\nprint(saludar("Byte"))\n`,
+  hints:["Puedes unir textos con +: \"Hola, \" + nombre + \"!\"", 'def saludar(nombre):\n    return "Hola, " + nombre + "!"'],
+  tests:String.raw`
+comparar("saludar", ["Byte"], "Hola, Byte!")
+comparar("saludar", ["Ana"], "Hola, Ana!")
+comparar("saludar", ["Pythonia"], "Hola, Pythonia!")
+`});
+
+lvl({ world:4, title:"Calculadora de sensores", xp:150,
+  story:"Los sensores de Byte necesitan dos funciones nuevas para analizar el terreno.",
+  explain:`<p>Las funciones pueden tener <b>varios parámetros</b> separados por comas y devolver cualquier tipo de valor, incluso <code>True</code>/<code>False</code> (booleanos).</p><ul><li><code>n % 2 == 0</code> es <code>True</code> si n es par.</li><li>Puedes devolver directamente una comparación: <code>return a &gt; b</code></li></ul>`,
+  example:`def es_mayor_de_edad(edad):
+    return edad >= 18
+
+def suma(a, b):
+    return a + b`,
+  mission:`Crea dos funciones:<br>1) <code>area(base, altura)</code> que devuelva el área de un rectángulo.<br>2) <code>es_par(n)</code> que devuelva <code>True</code> si n es par y <code>False</code> si no.`,
+  starter:`def area(base, altura):\n    pass\n\ndef es_par(n):\n    pass\n\nprint(area(3, 4))\nprint(es_par(7))\n`,
+  hints:["El área es base * altura.", "return n % 2 == 0"],
+  tests:String.raw`
+comparar("area", [3, 4], 12)
+comparar("area", [10, 2], 20)
+comparar("area", [0, 5], 0)
+for n, e in [(2, True), (7, False), (0, True), (13, False), (100, True)]:
+    r = funcion("es_par")(n)
+    check(r is e, "es_par(" + str(n) + ") devolvió " + repr(r) + ", se esperaba " + repr(e))
+`});
+
+lvl({ world:4, title:"Inventario de la nave", xp:160,
+  story:"Byte organiza las piezas de repuesto en un inventario con etiquetas.",
+  explain:`<p>Un <b>diccionario</b> guarda pares <b>clave: valor</b>: <code>{"chips": 3}</code>.</p><ul><li><code>d["chips"]</code> lee el valor de una clave</li><li><code>d["chips"] = 5</code> cambia o crea una clave</li><li><code>"chips" in d</code> → True si la clave existe</li><li><code>d.values()</code> todos los valores; <code>d.get(clave, 0)</code> devuelve 0 si no existe</li></ul>`,
+  example:`edades = {"Ana": 12, "Leo": 10}
+edades["Eva"] = 11
+for nombre, edad in edades.items():
+    print(nombre, edad)`,
+  mission:`Crea dos funciones:<br>1) <code>total(inv)</code> que devuelva la suma de todas las cantidades del diccionario.<br>2) <code>agregar(inv, objeto, cantidad)</code> que sume <code>cantidad</code> al objeto (o lo cree si no existe) y <b>devuelva</b> el diccionario.`,
+  starter:`inventario = {"tornillos": 5, "baterias": 2, "chips": 3}\n\ndef total(inv):\n    pass\n\ndef agregar(inv, objeto, cantidad):\n    pass\n\nprint(total(inventario))\n`,
+  hints:["total: return sum(inv.values())", "agregar: inv[objeto] = inv.get(objeto, 0) + cantidad y luego return inv"],
+  tests:String.raw`
+comparar("total", [{"a": 1, "b": 2, "c": 3}], 6)
+comparar("total", [{}], 0)
+comparar("agregar", [{"chips": 3}, "chips", 2], {"chips": 5})
+comparar("agregar", [{"chips": 3}, "laser", 1], {"chips": 3, "laser": 1})
+d = {"x": 1}
+funcion("agregar")(d, "x", 4)
+check(d["x"] == 5, "agregar debe modificar el diccionario que recibe.")
+`});
+
+lvl({ world:5, title:"El ritual FizzBuzz", xp:180,
+  story:"La puerta del Núcleo lógico tiene un código ancestral: el famoso FizzBuzz.",
+  explain:`<p>Combina todo lo aprendido. Un número es <b>múltiplo</b> de otro si el resto es 0: <code>n % 3 == 0</code>.</p><ul><li>¡El orden de los <code>if</code> importa! Comprueba primero el caso más específico.</li><li><code>str(n)</code> convierte un número a texto.</li></ul>`,
+  example:`n = 10
+if n % 5 == 0:
+    print("múltiplo de 5")`,
+  mission:`Crea <code>fizzbuzz(n)</code> que <b>devuelva</b>:<br>• <code>"FizzBuzz"</code> si n es múltiplo de 3 y de 5<br>• <code>"Fizz"</code> si es múltiplo de 3<br>• <code>"Buzz"</code> si es múltiplo de 5<br>• el número como texto en otro caso (ej. <code>"7"</code>)`,
+  starter:`def fizzbuzz(n):\n    pass\n\nfor i in range(1, 16):\n    print(fizzbuzz(i))\n`,
+  hints:["Comprueba primero n % 15 == 0 (múltiplo de 3 y de 5).", 'Al final: return str(n)'],
+  tests:String.raw`
+for i in range(1, 31):
+    e = "FizzBuzz" if i % 15 == 0 else "Fizz" if i % 3 == 0 else "Buzz" if i % 5 == 0 else str(i)
+    comparar("fizzbuzz", [i], e)
+`});
+
+lvl({ world:5, title:"El cristal más grande", xp:190,
+  story:"Un guardián desafía a Byte: encontrar el cristal más grande ¡sin usar atajos!",
+  explain:`<p>Patrón clásico: <b>guarda el mejor hasta ahora</b> y recorre la lista comparando.</p><ol><li>Empieza suponiendo que el primero es el mayor.</li><li>Recorre los demás: si uno es más grande, actualiza.</li><li>Devuelve el resultado.</li></ol>`,
+  example:`def menor(lista):
+    m = lista[0]
+    for x in lista:
+        if x < m:
+            m = x
+    return m`,
+  mission:`Crea <code>mayor(lista)</code> que devuelva el número más grande de la lista <b>sin usar</b> <code>max()</code> ni <code>sorted()</code> ni <code>.sort()</code>. Funciona también con números negativos.`,
+  starter:`def mayor(lista):\n    pass\n\nprint(mayor([3, 17, 8, 2]))\n`,
+  hints:["Empieza con m = lista[0] (no con 0, ¡piensa en listas de negativos!).", "for x in lista:\n    if x > m:\n        m = x\nreturn m"],
+  tests:String.raw`
+prohibidas = {"max", "sorted"} & llamadas()
+check(not prohibidas and ".sort(" not in __code__, "¡Nada de atajos! No uses max(), sorted() ni .sort(). Recorre la lista con un bucle.")
+comparar("mayor", [[3, 17, 8, 2]], 17)
+comparar("mayor", [[5]], 5)
+comparar("mayor", [[-7, -3, -10]], -3)
+comparar("mayor", [[1, 2, 3, 99]], 99)
+comparar("mayor", [[100, 2, 3]], 100)
+`});
+
+lvl({ world:5, title:"Espejos del palíndromo", xp:200,
+  story:"Una sala de espejos solo deja pasar palabras que se leen igual del derecho y del revés.",
+  explain:`<p>Truco de Python: <code>texto[::-1]</code> invierte un texto.</p><ul><li><code>"hola"[::-1]</code> → <code>"aloh"</code></li><li><code>texto.replace(" ", "")</code> quita los espacios</li><li><code>texto.lower()</code> pasa a minúsculas</li></ul>`,
+  example:`s = "Robot"
+print(s[::-1])          # toboR
+print(s.lower())        # robot`,
+  mission:`Crea dos funciones:<br>1) <code>invertir(texto)</code> que devuelva el texto al revés.<br>2) <code>es_palindromo(texto)</code> que devuelva <code>True</code> si se lee igual al revés, <b>ignorando mayúsculas y espacios</b>.<br>Ej: <code>es_palindromo("Anita lava la tina")</code> → <code>True</code>`,
+  starter:`def invertir(texto):\n    pass\n\ndef es_palindromo(texto):\n    pass\n\nprint(invertir("Byte"))\nprint(es_palindromo("Anita lava la tina"))\n`,
+  hints:["invertir: return texto[::-1]", 'es_palindromo: limpio = texto.lower().replace(" ", "") y luego return limpio == limpio[::-1]'],
+  tests:String.raw`
+comparar("invertir", ["Byte"], "etyB")
+comparar("invertir", ["abc def"], "fed cba")
+check(funcion("invertir")("") == "", "invertir(\"\") debería devolver \"\" (texto vacío).")
+for t, e in [("Anita lava la tina", True), ("reconocer", True), ("Python", False), ("Oso", True), ("ab", False), ("A man a plan a canal Panama", True)]:
+    r = funcion("es_palindromo")(t)
+    check(r is e, "es_palindromo(" + repr(t) + ") devolvió " + repr(r) + ", se esperaba " + repr(e))
+`});
+
+lvl({ world:5, title:"Cazador de primos", xp:220,
+  story:"El reactor del núcleo solo funciona con números primos. ¡Byte debe encontrarlos!",
+  explain:`<p>Un número <b>primo</b> es mayor que 1 y solo es divisible por 1 y por sí mismo (2, 3, 5, 7, 11…).</p><ul><li>Para saber si n es primo, prueba a dividirlo entre 2, 3, …, n-1. Si alguno da resto 0, no es primo.</li><li>Optimización: basta probar hasta la raíz cuadrada: <code>while d * d &lt;= n</code></li><li>Un <code>return</code> dentro de un bucle sale de la función al instante.</li></ul>`,
+  example:`def tiene_divisor(n, d):
+    return n % d == 0`,
+  mission:`Crea:<br>1) <code>es_primo(n)</code> → <code>True</code>/<code>False</code><br>2) <code>primos_hasta(n)</code> → lista con todos los primos desde 2 hasta n (incluido).<br>Ej: <code>primos_hasta(10)</code> → <code>[2, 3, 5, 7]</code>`,
+  starter:`def es_primo(n):\n    pass\n\ndef primos_hasta(n):\n    pass\n\nprint(primos_hasta(20))\n`,
+  hints:["es_primo: si n < 2 devuelve False. Luego for d in range(2, n): if n % d == 0: return False. Al final return True.", "primos_hasta: crea lista = [], recorre range(2, n + 1) y haz append de los que sean primos."],
+  tests:String.raw`
+for n, e in [(0, False), (1, False), (2, True), (3, True), (4, False), (9, False), (17, True), (25, False), (97, True), (7919, True)]:
+    r = funcion("es_primo")(n)
+    check(r is e, "es_primo(" + str(n) + ") devolvió " + repr(r) + ", se esperaba " + repr(e))
+comparar("primos_hasta", [10], [2, 3, 5, 7])
+comparar("primos_hasta", [20], [2, 3, 5, 7, 11, 13, 17, 19])
+comparar("primos_hasta", [2], [2])
+check(funcion("primos_hasta")(1) == [], "primos_hasta(1) debería devolver una lista vacía [].")
+`});
+
+lvl({ world:5, title:"Navegación por coordenadas", xp:240,
+  story:"Byte tiene que programar su GPS para moverse por el mapa del núcleo.",
+  explain:`<p>Una <b>tupla</b> agrupa valores: <code>(x, y)</code>. Puedes recorrer un texto letra a letra con <code>for letra in texto:</code>.</p><ul><li>N (norte) → y + 1</li><li>S (sur) → y − 1</li><li>E (este) → x + 1</li><li>O (oeste) → x − 1</li></ul>`,
+  example:`for letra in "NNE":
+    print(letra)
+pos = (2, 3)
+x, y = pos`,
+  mission:`Crea <code>mover(instrucciones)</code>: Byte empieza en <code>(0, 0)</code> y sigue cada letra del texto (N, S, E, O). Devuelve la posición final como tupla <code>(x, y)</code>. Ignora cualquier otra letra.<br>Ej: <code>mover("NNEEO")</code> → <code>(1, 2)</code>`,
+  starter:`def mover(instrucciones):\n    x, y = 0, 0\n    # recorre las instrucciones\n\n    return (x, y)\n\nprint(mover("NNEEO"))\n`,
+  hints:["for letra in instrucciones:\n    if letra == \"N\":\n        y += 1", "Añade elif para S, E y O. Las demás letras no hacen nada."],
+  tests:String.raw`
+comparar("mover", ["NNEEO"], (1, 2))
+comparar("mover", [""], (0, 0))
+comparar("mover", ["SSSS"], (0, -4))
+comparar("mover", ["NESO"], (0, 0))
+comparar("mover", ["EEEXEN"], (4, 1))
+`});
+
+lvl({ world:5, title:"El laberinto final", xp:300,
+  story:"¡El último desafío! Byte debe atravesar el laberinto del núcleo sin chocar contra los muros para reparar la nave y volver a casa.",
+  explain:`<p>Un mapa puede ser una <b>lista de textos</b>, donde cada texto es una fila. <code>mapa[fila][columna]</code> te da la casilla.</p><ul><li><code>R</code> = robot (inicio), <code>S</code> = salida, <code>#</code> = muro, <code>.</code> = camino</li><li>N = fila − 1, S = fila + 1, E = columna + 1, O = columna − 1</li><li>Comprueba que no te sales: <code>0 &lt;= fila &lt; len(mapa)</code></li></ul>`,
+  example:`mapa = ["R.#",
+        "..S"]
+print(mapa[1][2])   # S
+for f in range(len(mapa)):
+    for c in range(len(mapa[f])):
+        if mapa[f][c] == "R":
+            print("Robot en", f, c)`,
+  mission:`Crea <code>recorrer(mapa, instrucciones)</code> que devuelva:<br>• <code>"salida"</code> en cuanto Byte pise la <code>S</code><br>• <code>"choque"</code> si pisa un muro <code>#</code> o se sale del mapa<br>• <code>"perdido"</code> si acaba las instrucciones sin llegar a la salida`,
+  starter:`def recorrer(mapa, instrucciones):\n    # 1) busca la posición de "R"\n\n    # 2) sigue las instrucciones\n\n    return "perdido"\n\nmapa = ["R.#",\n        "#.#",\n        "#.S"]\nprint(recorrer(mapa, "ESSE"))\n`,
+  hints:["Busca R con dos bucles for anidados y guarda fila y columna. Luego, por cada letra, calcula la nueva posición.", "Tras moverte: si estás fuera (fila < 0 o fila >= len(mapa) o col < 0 o col >= len(mapa[fila])) o en '#', return \"choque\"; si es 'S', return \"salida\"."],
+  tests:String.raw`
+m = ["R.#", "#.#", "#.S"]
+comparar("recorrer", [m, "ESSE"], "salida")
+comparar("recorrer", [m, "S"], "choque")
+comparar("recorrer", [m, "E"], "perdido")
+comparar("recorrer", [m, "N"], "choque")
+comparar("recorrer", [m, "EEE"], "choque")
+m2 = ["#####", "#R..#", "#.#S#", "#...#", "#####"]
+comparar("recorrer", [m2, "EES"], "salida")
+comparar("recorrer", [m2, "SSEEN"], "salida")
+comparar("recorrer", [m2, "ESS"], "choque")
+comparar("recorrer", [["S.R"], "OOOO"], "salida")
+`});
+L.forEach((l, i) => { l.id = i; });
+</script>
+<script>
+/* ===================== RANGOS Y LOGROS ===================== */
+const RANKS = [
+  { xp: 0, name: "Chatarra con chispa", icon: "🔩" },
+  { xp: 150, name: "Aprendiz de código", icon: "🐣" },
+  { xp: 450, name: "Programador junior", icon: "💻" },
+  { xp: 900, name: "Ingeniero de bucles", icon: "⚙️" },
+  { xp: 1500, name: "Hacker de Pythonia", icon: "🦾" },
+  { xp: 2300, name: "Maestro Pythonista", icon: "🐍" },
+  { xp: 3200, name: "Leyenda galáctica", icon: "🌌" },
+];
+const ACH = [
+  { id: "first", icon: "🚀", name: "Primer paso", desc: "Completa tu primer nivel", test: s => doneCount(s) >= 1 },
+  { id: "nohint", icon: "🧠", name: "Mente brillante", desc: "Supera un nivel sin pistas", test: s => Object.values(s.levels).some(l => l.noHint) },
+  { id: "firsttry", icon: "🎯", name: "A la primera", desc: "Supera un nivel en el primer intento", test: s => Object.values(s.levels).some(l => l.firstTry) },
+  { id: "bug", icon: "🐛", name: "Cazador de bichos", desc: "Encuentra (y sobrevive a) tu primer error", test: s => s.errors >= 1 },
+  { id: "streak3", icon: "🔥", name: "Racha de fuego", desc: "3 niveles seguidos a la primera", test: s => s.bestStreak >= 3 },
+  { id: "w1", icon: "🛸", name: "Aterrizaje perfecto", desc: "Completa la Base de aterrizaje", test: s => worldDone(s, 1) },
+  { id: "w2", icon: "🔀", name: "Decidido", desc: "Completa la Cueva de las decisiones", test: s => worldDone(s, 2) },
+  { id: "w3", icon: "🔁", name: "Señor de los bucles", desc: "Completa el Bosque de los bucles", test: s => worldDone(s, 3) },
+  { id: "w4", icon: "🧪", name: "Científico loco", desc: "Completa el Laboratorio de funciones", test: s => worldDone(s, 4) },
+  { id: "stars10", icon: "🌟", name: "Coleccionista de estrellas", desc: "Consigue 10 estrellas", test: s => totalStars(s) >= 10 },
+  { id: "perfect5", icon: "💎", name: "Perfeccionista", desc: "5 niveles con 3 estrellas", test: s => Object.values(s.levels).filter(l => l.stars === 3).length >= 5 },
+  { id: "coins300", icon: "💰", name: "Bolsillos llenos", desc: "Reúne 300 monedas", test: s => s.coins >= 300 },
+  { id: "fizz", icon: "🥤", name: "FizzBuzzer", desc: "Supera el ritual FizzBuzz", test: s => !!s.levels[12] },
+  { id: "final", icon: "🏁", name: "¡Vuelta a casa!", desc: "Completa el laberinto final", test: s => !!s.levels[L.length - 1] },
+  { id: "all3", icon: "👑", name: "Leyenda de Pythonia", desc: "Todas las misiones con 3 estrellas", test: s => L.every(l => s.levels[l.id] && s.levels[l.id].stars === 3) },
+];
+
+/* ===================== ESTADO ===================== */
+const KEY = "pythonQuest.v1";
+function freshState(){ return { xp: 0, coins: 0, levels: {}, ach: [], current: 0, streak: 0, bestStreak: 0, errors: 0, code: {} }; }
+function load(){ try { return Object.assign(freshState(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch(e){ return freshState(); } }
+let S = load();
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function doneCount(s){ return Object.keys(s.levels).length; }
+function totalStars(s){ return Object.values(s.levels).reduce((a, l) => a + l.stars, 0); }
+function worldDone(s, w){ return L.filter(l => l.world === w).every(l => s.levels[l.id]); }
+function unlocked(i){ return i === 0 || !!S.levels[i - 1] || !!S.levels[i]; }
+let attempt = { fails: 0, hints: 0 };
+
+/* ===================== PYTHON (WORKER) ===================== */
+let worker = null, pyReady = false, reqId = 0, pending = null, timer = null, isBusy = false;
+const TIMEOUT = 6000;
+function startWorker(){
+  pyReady = false; setPyStatus(false, "Cargando Python… (la primera vez tarda unos segundos)");
+  const blob = new Blob([document.getElementById("workerSrc").textContent], { type: "text/javascript" });
+  worker = new Worker(URL.createObjectURL(blob));
+  worker.onmessage = (e) => {
+    const d = e.data;
+    if (d.type === "ready") { pyReady = true; setPyStatus(true, "Python listo"); }
+    else if (d.type === "loaderror") { setPyStatus(false, "Error cargando Python. ¿Hay conexión a internet?"); }
+    else if (d.type === "result" && pending && pending.id === d.id) { clearTimeout(timer); const p = pending; pending = null; p.resolve(d.res); }
+  };
+  worker.postMessage({ type: "init", harness: document.getElementById("harness").textContent });
+}
+function runPy(code, tests){
+  return new Promise((resolve) => {
+    const id = ++reqId;
+    pending = { id, resolve };
+    worker.postMessage({ type: "run", id, code, tests });
+    timer = setTimeout(() => {
+      if (pending && pending.id === id) {
+        pending = null; worker.terminate(); startWorker();
+        resolve({ ok: false, out: "", error: { type: "Timeout", msg: "", line: null } });
+      }
+    }, TIMEOUT);
+  });
+}
+function setPyStatus(ok, txt){
+  document.getElementById("pyDot").classList.toggle("ready", ok);
+  document.getElementById("pyStatus").textContent = txt;
+  document.getElementById("runBtn").disabled = !ok;
+  document.getElementById("checkBtn").disabled = !ok;
+}
+
+/* ===================== ERRORES EN ESPAÑOL ===================== */
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
+function translateError(e){
+  const m = e.msg || ""; const where = e.line ? ` en la línea <b>${e.line}</b>` : "";
+  let t = "", tip = "";
+  switch (e.type) {
+    case "Timeout": t = "⏱️ Tu programa tarda demasiado."; tip = "Seguramente hay un <b>bucle infinito</b>: revisa que la condición del <code>while</code> llegue a ser falsa (¿actualizas la variable dentro del bucle?)."; break;
+    case "InputError": t = `⌨️ Has usado <code>input()</code>${where}.`; tip = "En este juego no hace falta pedir datos al usuario: usa variables con valores fijos."; break;
+    case "SyntaxError":
+      t = `✏️ Error de escritura (sintaxis)${where}.`;
+      if (/was never closed/.test(m)) tip = "Hay un paréntesis, corchete o llave que <b>abriste y no cerraste</b>.";
+      else if (/unterminated string|EOL while scanning|unterminated triple/.test(m)) tip = "Un texto no tiene la <b>comilla de cierre</b>. Revisa que cada <code>\"</code> tenga su pareja.";
+      else if (/expected ':'/.test(m)) tip = "Faltan <b>los dos puntos <code>:</code></b> al final de la línea (después de if, else, for, while o def).";
+      else if (/forgot a comma/.test(m)) tip = "Parece que <b>falta una coma</b> entre dos elementos.";
+      else if (/unmatched|closing parenthesis/.test(m)) tip = "Hay un paréntesis o corchete de <b>cierre que sobra</b> o no coincide.";
+      else if (/Maybe you meant '=='|cannot assign/.test(m)) tip = "Para <b>comparar</b> usa <code>==</code>; un solo <code>=</code> sirve para <b>guardar</b> en una variable.";
+      else if (/invalid character/.test(m)) tip = "Hay un carácter raro (¿comillas tipográficas “ ” o un símbolo especial?). Usa comillas normales <code>\"</code>.";
+      else if (/expected an indented block/.test(m)) tip = "Después de los <code>:</code> la siguiente línea debe tener <b>sangría</b> (4 espacios o Tab).";
+      else tip = "Python no entiende cómo está escrita esa línea. Revisa paréntesis, comillas, comas y dos puntos.";
+      break;
+    case "IndentationError": case "TabError":
+      t = `↹ Error de sangría${where}.`;
+      if (/expected an indented block/.test(m)) tip = "Después de una línea que acaba en <code>:</code> el bloque debe ir <b>con sangría</b> (pulsa Tab).";
+      else if (/unexpected indent/.test(m)) tip = "Esta línea tiene <b>sangría que no toca</b>. Quítale los espacios del principio.";
+      else tip = "Las líneas de un mismo bloque deben tener <b>la misma sangría</b>.";
+      break;
+    case "NameError": case "UnboundLocalError": {
+      const n = (m.match(/'([^']+)'/) || [])[1] || "?";
+      t = `🔎 No conozco el nombre <code>${esc(n)}</code>${where}.`;
+      tip = "¿Está bien escrito (mayúsculas incluidas)? ¿Lo has creado antes de usarlo? Si era un texto, recuerda ponerlo <b>entre comillas</b>.";
+      break; }
+    case "TypeError":
+      t = `🧩 Tipos que no encajan${where}.`;
+      if (/can only concatenate str|unsupported operand.*'str'|must be str, not/.test(m)) tip = "Estás mezclando <b>texto y números</b>. Convierte con <code>str(numero)</code> o usa una f-string: <code>f\"{numero}\"</code>.";
+      else if (/NoneType/.test(m)) tip = "Algo vale <code>None</code>. ¿Olvidaste un <code>return</code> en tu función?";
+      else if (/positional argument|required|takes \d+/.test(m)) tip = "La función ha recibido un <b>número incorrecto de argumentos</b>. Revisa los parámetros del <code>def</code>.";
+      else if (/not callable/.test(m)) tip = "Estás usando algo como si fuera una función (con paréntesis) y no lo es.";
+      else if (/not subscriptable/.test(m)) tip = "Estás usando <code>[ ]</code> sobre algo que no es una lista, texto o diccionario.";
+      else tip = "Estás haciendo una operación con un tipo de dato que no la admite.";
+      break;
+    case "ZeroDivisionError": t = `➗ División entre cero${where}.`; tip = "No se puede dividir entre 0. Revisa el divisor."; break;
+    case "IndexError": t = `📦 Posición fuera de rango${where}.`; tip = "Intentas acceder a una posición que no existe. Recuerda: se cuenta desde 0 y el último es <code>[-1]</code>."; break;
+    case "KeyError": t = `🔑 La clave ${esc(m)} no existe en el diccionario${where}.`; tip = "Comprueba con <code>if clave in diccionario</code> o usa <code>diccionario.get(clave, 0)</code>."; break;
+    case "ValueError": t = `⚠️ Valor no válido${where}.`; tip = "Un valor tiene el tipo correcto pero no sirve (por ejemplo <code>int(\"hola\")</code>)."; break;
+    case "AttributeError": { const a = (m.match(/attribute '([^']+)'/) || [])[1]; t = `🔧 Método o atributo desconocido${a ? " <code>" + esc(a) + "</code>" : ""}${where}.`; tip = "Revisa cómo se escribe el método (por ejemplo <code>.upper()</code>, <code>.append()</code>) y que lo usas sobre el tipo correcto."; break; }
+    case "RecursionError": t = "🌀 Demasiadas llamadas a la función."; tip = "Tu función se llama a sí misma sin parar."; break;
+    default: t = `💥 Error ${esc(e.type)}${where}.`; tip = "Revisa la línea indicada.";
+  }
+  const orig = e.type !== "Timeout" && e.type !== "InputError" ? `<br><small>Mensaje de Python: ${esc(e.type)}: ${esc(m)}</small>` : "";
+  const during = e.during === "test" ? "<br><small>(El error ocurrió cuando el examen probó tu código.)</small>" : "";
+  return `<b>${t}</b><br>${tip}${during}${orig}`;
+}
+
+/* ===================== UI ===================== */
+const $ = id => document.getElementById(id);
+const codeEl = $("code");
+let cur = Math.min(S.current || 0, L.length - 1);
+if (!unlocked(cur)) cur = 0;
+let opened = false;
+
+function rankInfo(xp){
+  let i = 0; while (i + 1 < RANKS.length && xp >= RANKS[i + 1].xp) i++;
+  const r = RANKS[i], n = RANKS[i + 1];
+  return { i, r, n, pct: n ? (xp - r.xp) / (n.xp - r.xp) * 100 : 100 };
+}
+function renderHeader(){
+  const ri = rankInfo(S.xp);
+  $("rankName").textContent = ri.r.icon + " " + ri.r.name;
+  $("xpTxt").textContent = ri.n ? `${S.xp} / ${ri.n.xp} XP` : `${S.xp} XP · ¡Rango máximo!`;
+  $("xpBar").style.width = ri.pct + "%";
+  $("coins").textContent = S.coins;
+  $("stars").textContent = totalStars(S);
+  $("achCount").textContent = `${S.ach.length}/${ACH.length}`;
+}
+function starStr(n){ return "★".repeat(n) + "☆".repeat(3 - n); }
+function renderMap(){
+  let h = "";
+  WORLDS.forEach(w => {
+    const ls = L.filter(l => l.world === w.id);
+    const done = ls.filter(l => S.levels[l.id]).length;
+    h += `<div class="world"><h3><span>${w.icon} ${w.name}</span><span>${done}/${ls.length}</span></h3>`;
+    ls.forEach(l => {
+      const st = S.levels[l.id], lock = !unlocked(l.id);
+      h += `<button class="node ${st ? "done" : ""} ${lock ? "locked" : ""} ${l.id === cur ? "active" : ""}" data-l="${l.id}" ${lock ? 'title="Completa el nivel anterior para desbloquearlo"' : ""}>
+        <span class="num">${lock ? "🔒" : st ? "✓" : l.id + 1}</span><span class="t">${l.title}</span>
+        <span class="st">${st ? starStr(st.stars) : ""}</span></button>`;
+    });
+    h += `</div>`;
+  });
+  $("map").innerHTML = h;
+  $("map").querySelectorAll(".node").forEach(b => b.onclick = () => { const i = +b.dataset.l; if (unlocked(i)) openLevel(i); });
+}
+function saveCode(){ if (opened && L[cur]) { S.code[cur] = codeEl.value; save(); } }
+function openLevel(i){
+  saveCode();
+  cur = i; S.current = i; save(); opened = true;
+  const l = L[i], w = WORLDS.find(w => w.id === l.world);
+  attempt = { fails: 0, hints: 0 };
+  $("lvlWorld").textContent = `${w.icon} Mundo ${w.id}: ${w.name}`;
+  $("lvlNum").textContent = `Nivel ${i + 1} de ${L.length}`;
+  $("lvlTitle").textContent = l.title;
+  $("lvlStory").textContent = "🤖 " + l.story;
+  $("lvlExplain").innerHTML = l.explain;
+  $("lvlExample").textContent = l.example;
+  $("lvlMission").innerHTML = l.mission;
+  const prev = S.levels[i];
+  $("lvlRewards").innerHTML = `<span>✨ ${l.xp} XP</span><span>🪙 hasta 30 monedas</span><span>⭐ +1 completar · +1 sin pistas · +1 a la primera</span>${prev ? `<span>Tu récord: ${starStr(prev.stars)}</span>` : ""}`;
+  $("hintBox").style.display = "none"; $("hintBox").innerHTML = "";
+  $("hintBtn").textContent = "💡 Pista";
+  codeEl.value = S.code[i] != null ? S.code[i] : l.starter;
+  updateGutter();
+  $("console").innerHTML = '<span class="muted">La salida de tu programa aparecerá aquí…</span>';
+  $("result").className = "result"; $("result").innerHTML = "";
+  $("nextBtn").style.display = S.levels[i] && i + 1 < L.length ? "flex" : "none";
+  renderMap();
+  if (window.innerWidth < 760) $("lessonCard").scrollIntoView({ behavior: "smooth" });
+}
+function showConsole(out){
+  if (out && out.length) $("console").textContent = out;
+  else $("console").innerHTML = '<span class="muted">(Tu programa no ha mostrado nada)</span>';
+}
+function showResult(kind, html){ const r = $("result"); r.className = "result " + kind; r.innerHTML = html; }
+function busy(b){ isBusy = b; $("runBtn").disabled = b; $("checkBtn").disabled = b; if (b) $("console").innerHTML = '<span class="muted">Ejecutando…</span>'; }
+
+async function doRun(){
+  if (!pyReady || isBusy) return;
+  saveCode(); busy(true);
+  const res = await runPy(codeEl.value, "");
+  busy(false); if (!pyReady) setPyStatus(false, "Reiniciando Python…");
+  showConsole(res.out);
+  if (res.error) { S.errors++; save(); checkAch(); showResult("err", translateError(res.error)); }
+  else showResult("", "");
+}
+async function doCheck(){
+  if (!pyReady || isBusy) return;
+  saveCode(); busy(true);
+  const l = L[cur];
+  const res = await runPy(codeEl.value, l.tests);
+  busy(false); if (!pyReady) setPyStatus(false, "Reiniciando Python…");
+  showConsole(res.out);
+  if (res.ok) { win(); return; }
+  attempt.fails++;
+  if (res.error) { S.errors++; save(); checkAch(); showResult("err", translateError(res.error)); }
+  else showResult("bad", `<b>❌ Todavía no.</b> ${esc(res.fail).replace(/\n/g, "<br>")}<br><small>Intento fallido nº ${attempt.fails}. ¡Sigue probando! ${attempt.fails >= 2 && attempt.hints === 0 ? "Si te atascas, pide una pista 💡" : ""}</small>`);
+}
+function showHint(){
+  const l = L[cur];
+  if (attempt.hints >= l.hints.length) return;
+  attempt.hints++;
+  const box = $("hintBox"); box.style.display = "block";
+  box.innerHTML = l.hints.slice(0, attempt.hints).map((h, i) => `<div style="margin-bottom:6px"><b>💡 Pista ${i + 1}:</b><pre class="example" style="margin:4px 0;white-space:pre-wrap">${esc(h)}</pre></div>`).join("") + `<small style="color:var(--muted)">Usar pistas no penaliza el nivel, pero pierdes la estrella «sin pistas».</small>`;
+  $("hintBtn").textContent = attempt.hints >= l.hints.length ? "💡 No hay más pistas" : "💡 Otra pista";
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function win(){
+  const l = L[cur];
+  const noHint = attempt.hints === 0, firstTry = attempt.fails === 0;
+  const stars = 1 + (noHint ? 1 : 0) + (firstTry ? 1 : 0);
+  const prev = S.levels[cur];
+  const prevStars = prev ? prev.stars : 0;
+  let xpGain = 0;
+  if (!prev) xpGain = Math.round(l.xp * (1 + 0.25 * (stars - 1)));
+  else if (stars > prevStars) xpGain = Math.round(l.xp * 0.25 * (stars - prevStars));
+  let coinGain = Math.max(0, stars - prevStars) * 10;
+  if (!prev) { if (firstTry) { S.streak++; S.bestStreak = Math.max(S.bestStreak, S.streak); } else S.streak = 0; }
+  const streakBonus = !prev && firstTry && S.streak >= 3 ? 5 * (S.streak - 2) : 0;
+  coinGain += streakBonus;
+  const oldRank = rankInfo(S.xp).i;
+  S.xp += xpGain; S.coins += coinGain;
+  S.levels[cur] = { stars: Math.max(stars, prevStars), noHint: noHint || !!(prev && prev.noHint), firstTry: firstTry || !!(prev && prev.firstTry) };
+  save();
+  const newRank = rankInfo(S.xp).i;
+  showResult("ok", `<b>✅ ¡Misión cumplida!</b> Todas las pruebas han pasado.`);
+  renderHeader(); renderMap();
+  $("nextBtn").style.display = cur + 1 < L.length ? "flex" : "none";
+  const newAch = checkAch();
+  confetti(stars === 3 ? 260 : 150);
+  const reasons = ["✔ Misión completada", noHint ? "✔ Sin usar pistas" : "✘ Usaste pistas", firstTry ? "✔ ¡A la primera!" : `✘ ${attempt.fails} intento(s) fallido(s)`];
+  const isLast = cur === L.length - 1, nxt = cur + 1 < L.length;
+  $("winModal").innerHTML = `
+    <div style="font-size:3rem">${isLast ? "🏆" : stars === 3 ? "🤩" : "🎉"}</div>
+    <h2>${isLast ? "¡Has salvado a Byte!" : "¡Nivel superado!"}</h2>
+    <div class="big-stars">${[0,1,2].map(i => `<span class="s ${i < stars ? "" : "off"}" style="animation-delay:${0.15 + i * 0.2}s">⭐</span>`).join("")}</div>
+    <div class="reasons">${reasons.join("<br>")}</div>
+    <div class="gain"><div>✨ +${xpGain} XP</div><div>🪙 +${coinGain}</div>${streakBonus ? `<div>🔥 Racha x${S.streak} (+${streakBonus})</div>` : ""}</div>
+    ${prev && stars <= prevStars ? `<div class="reasons">Ya tenías ${prevStars} estrella(s) en este nivel. ¡Supera tu récord para ganar más!</div>` : ""}
+    ${newRank > oldRank ? `<div class="mission" style="margin-top:10px">⬆️ ¡Nuevo rango! <b>${RANKS[newRank].icon} ${RANKS[newRank].name}</b></div>` : ""}
+    ${newAch.length ? `<div class="reasons" style="margin-top:10px">🏆 Logros: ${newAch.map(a => a.icon + " " + a.name).join(", ")}</div>` : ""}
+    ${nxt && !prev ? `<div class="reasons" style="margin-top:8px">🔓 Desbloqueado: <b>${L[cur + 1].title}</b></div>` : ""}
+    ${isLast ? `<div class="reasons" style="margin-top:8px">La nave está reparada. ¡Eres un auténtico programador de Python! Repite niveles para conseguir todas las estrellas.</div>` : ""}
+    <div class="row">
+      <button class="b b-reset" onclick="closeOverlay('winOverlay')">Quedarme aquí</button>
+      ${nxt ? `<button class="b b-next" id="modalNext" onclick="closeOverlay('winOverlay');openLevel(${cur + 1})">Siguiente nivel ➜</button>` : ""}
+    </div>`;
+  $("winOverlay").classList.add("show");
+  if (newRank > oldRank) setTimeout(() => confetti(200), 700);
+}
+function closeOverlay(id){ $(id).classList.remove("show"); }
+function checkAch(){
+  const got = [];
+  ACH.forEach(a => { if (!S.ach.includes(a.id) && a.test(S)) { S.ach.push(a.id); got.push(a); } });
+  if (got.length) { save(); renderHeader(); got.forEach((a, i) => setTimeout(() => toast(a), 300 + i * 900)); }
+  return got;
+}
+function toast(a){
+  const t = document.createElement("div"); t.className = "toast";
+  t.innerHTML = `<span class="i">${a.icon}</span><div><small style="color:var(--acc2)">¡Logro desbloqueado!</small><br><b>${a.name}</b><br><small style="color:var(--muted)">${a.desc}</small></div>`;
+  $("toasts").appendChild(t); setTimeout(() => t.remove(), 4500);
+}
+function openAch(){
+  $("achSummary").textContent = `Has desbloqueado ${S.ach.length} de ${ACH.length} logros · ${doneCount(S)}/${L.length} niveles · ${totalStars(S)}/${L.length * 3} estrellas`;
+  $("achGrid").innerHTML = ACH.map(a => `<div class="ach ${S.ach.includes(a.id) ? "" : "lock"}"><div class="i">${a.icon}</div><b>${a.name}</b><small>${a.desc}</small></div>`).join("");
+  $("achOverlay").classList.add("show");
+}
+
+/* ===================== CONFETI ===================== */
+const cv = $("confetti"), cx = cv.getContext("2d"); let parts = [], anim = null;
+function confetti(n){
+  cv.width = innerWidth; cv.height = innerHeight;
+  const colors = ["#7c5cff", "#22d3ee", "#fbbf24", "#22c55e", "#f43f5e", "#ffffff"];
+  for (let i = 0; i < n; i++) parts.push({ x: innerWidth / 2 + (Math.random() - .5) * 200, y: innerHeight * .45, vx: (Math.random() - .5) * 16, vy: -Math.random() * 16 - 4, s: Math.random() * 7 + 4, c: colors[i % colors.length], r: Math.random() * 6, vr: (Math.random() - .5) * .3, life: 160 + Math.random() * 60 });
+  if (!anim) loop();
+}
+function loop(){
+  cx.clearRect(0, 0, cv.width, cv.height);
+  parts.forEach(p => { p.vy += .35; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life--; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c; cx.globalAlpha = Math.max(0, Math.min(1, p.life / 40)); cx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); cx.restore(); });
+  parts = parts.filter(p => p.life > 0 && p.y < cv.height + 40);
+  if (parts.length) anim = requestAnimationFrame(loop); else { anim = null; cx.clearRect(0, 0, cv.width, cv.height); }
+}
+
+/* ===================== EDITOR ===================== */
+function updateGutter(){ const n = codeEl.value.split("\n").length; let s = ""; for (let i = 1; i <= n; i++) s += i + "\n"; $("gutter").textContent = s; $("gutter").scrollTop = codeEl.scrollTop; }
+codeEl.addEventListener("input", updateGutter);
+codeEl.addEventListener("scroll", () => { $("gutter").scrollTop = codeEl.scrollTop; });
+function insertText(txt){ if (!document.execCommand("insertText", false, txt)) codeEl.setRangeText(txt, codeEl.selectionStart, codeEl.selectionEnd, "end"); updateGutter(); }
+codeEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.shiftKey ? doCheck() : doRun(); return; }
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const v = codeEl.value, s = codeEl.selectionStart;
+    if (e.shiftKey) {
+      const ls = v.lastIndexOf("\n", s - 1) + 1; const m = v.slice(ls).match(/^ {1,4}/);
+      if (m) { codeEl.setRangeText("", ls, ls + m[0].length, "end"); updateGutter(); }
+    } else insertText("    ");
+    return;
+  }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const v = codeEl.value, s = codeEl.selectionStart; const ls = v.lastIndexOf("\n", s - 1) + 1;
+    const line = v.slice(ls, s); let ind = line.match(/^\s*/)[0];
+    if (/:\s*$/.test(line)) ind += "    ";
+    insertText("\n" + ind);
+  }
+});
+
+/* ===================== ARRANQUE ===================== */
+$("runBtn").onclick = doRun;
+$("checkBtn").onclick = doCheck;
+$("hintBtn").onclick = showHint;
+$("resetCodeBtn").onclick = () => { if (confirm("¿Volver al código inicial de este nivel?")) { codeEl.value = L[cur].starter; updateGutter(); saveCode(); } };
+$("nextBtn").onclick = () => { if (cur + 1 < L.length) openLevel(cur + 1); };
+$("achBtn").onclick = openAch;
+$("resetBtn").onclick = () => { if (confirm("¿Seguro que quieres borrar TODO tu progreso (XP, monedas, estrellas y logros)?")) { localStorage.removeItem(KEY); S = freshState(); opened = false; cur = 0; renderHeader(); openLevel(0); } };
+document.querySelectorAll(".overlay").forEach(o => o.addEventListener("click", e => { if (e.target === o) o.classList.remove("show"); }));
+window.addEventListener("beforeunload", saveCode);
+renderHeader();
+openLevel(cur);
+startWorker();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "VÉRTICE: Ingeniería Lógica en Python",
+  "description": "Simulador táctico de ingeniería y desafíos de programación en Python para adultos con editor interactivo, autocompletado, ejecución a 60fps y progresión de rangos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
